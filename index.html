@@ -71,10 +71,10 @@
 
     <h2>إدخال نتيجة جديدة</h2>
     <form id="resultForm">
-        <label for="studentName">اسم الطالب:</label>
-        <input type="text" id="studentName" placeholder="أدخل اسم الطالب" required>
-        <label for="score">الدرجة:</label>
-        <input type="number" id="score" placeholder="أدخل الدرجة" required>
+        <label for="studentNumber">رقم الطالب:</label>
+        <input type="text" id="studentNumber" placeholder="أدخل رقم الطالب" required>
+        <label for="studentScore">النتيجة:</label>
+        <input type="number" id="studentScore" placeholder="أدخل النتيجة" required>
         <button type="submit">إدخال النتيجة</button>
     </form>
 
@@ -115,24 +115,14 @@
             if (data.length === 0) return '<p>لا توجد نتائج</p>';
 
             let table = '<table><tr>';
-            // عرض الأعمدة الخاصة بـ خ1، خ2، خ3، ام1، ام2، ام3، المجموع والمعدل العام
-            table += '<th>الاسم</th><th>خ1</th><th>خ2</th><th>خ3</th><th>ام1</th><th>ام2</th><th>ام3</th><th>المجموع</th><th>المعدل العام</th>';
+            // عرض الأعمدة الخاصة بـ الرقم والنتيجة
+            table += '<th>رقم الطالب</th><th>النتيجة</th>';
             table += '</tr>';
 
             data.forEach(row => {
-                const total = row["خ1"] + row["خ2"] + row["خ3"] + row["ام1"] + row["ام2"] + row["ام3"];
-                const average = total / 6;  // حساب المعدل العام
-
                 table += '<tr>';
-                table += `<td>${row["الاسم"]}</td>`;
-                table += `<td>${row["خ1"]}</td>`;
-                table += `<td>${row["خ2"]}</td>`;
-                table += `<td>${row["خ3"]}</td>`;
-                table += `<td>${row["ام1"]}</td>`;
-                table += `<td>${row["ام2"]}</td>`;
-                table += `<td>${row["ام3"]}</td>`;
-                table += `<td>${total}</td>`;
-                table += `<td>${average.toFixed(2)}</td>`;
+                table += `<td>${row["الرقم"]}</td>`;
+                table += `<td>${row["النتيجة"]}</td>`;
                 table += '</tr>';
             });
 
@@ -144,22 +134,17 @@
         document.getElementById('resultForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
-            const studentName = document.getElementById('studentName').value;
-            const score = document.getElementById('score').value;
+            const studentNumber = document.getElementById('studentNumber').value;
+            const studentScore = document.getElementById('studentScore').value;
             const selectedClass = document.getElementById('class').value;
             const selectedSubject = document.getElementById('subject').value;
 
             // إضافة النتيجة الجديدة إلى البيانات
             data.push({
-                "الاسم": studentName,
+                "الرقم": studentNumber,
+                "النتيجة": studentScore,
                 "المادة": selectedSubject,
-                "خ1": score, // إضافة الدرجة لـ خ1 أو خ2 أو خ3 حسب الاختيار
-                "ام1": 0,  // قيم مبدئية (يمكنك تعديلها حسب الحاجة)
-                "ام2": 0,
-                "ام3": 0,
-                "الصف": selectedClass,
-                "المجموع": 0,
-                "المعدل العام": 0
+                "الصف": selectedClass
             });
 
             // عرض الجدول المحدث
@@ -178,7 +163,7 @@
 
             let y = 30;
             data.forEach(row => {
-                const rowData = `الاسم: ${row["الاسم"]} | خ1: ${row["خ1"]} | خ2: ${row["خ2"]} | خ3: ${row["خ3"]} | ام1: ${row["ام1"]} | ام2: ${row["ام2"]} | ام3: ${row["ام3"]} | المجموع: ${row["المجموع"]} | المعدل العام: ${row["المعدل العام"]}`;
+                const rowData = `رقم الطالب: ${row["الرقم"]} | النتيجة: ${row["النتيجة"]}`;
                 doc.text(rowData, 20, y);
                 y += 10;
             });
