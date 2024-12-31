@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إعدادية هامد</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,7 +67,8 @@
 
     <div id="results"></div>
 
-    <!-- إدخال النتيجة -->
+    <button id="downloadPdfBtn" style="display:none;" onclick="downloadPdf()">تحميل PDF</button>
+
     <h2>إدخال نتيجة جديدة</h2>
     <form id="resultForm">
         <label for="studentName">اسم الطالب:</label>
@@ -103,6 +105,9 @@
             // عرض النتائج
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = generateTable(filteredData);
+
+            // إظهار زر تحميل PDF
+            document.getElementById('downloadPdfBtn').style.display = 'inline';
         }
 
         // توليد الجدول لعرض البيانات
@@ -146,6 +151,23 @@
             // مسح الحقول بعد الإدخال
             document.getElementById('resultForm').reset();
         });
+
+        // تنزيل PDF يحتوي على النتائج
+        function downloadPdf() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text("نتائج الطلاب في مادة " + document.getElementById('subject').value, 20, 20);
+
+            let y = 30;
+            data.forEach(row => {
+                const rowData = `الاسم: ${row["الاسم"]} | خ1: ${row["خ1"]} | خ2: ${row["خ2"]} | خ3: ${row["خ3"]} | ام1: ${row["ام1"]} | ام2: ${row["ام2"]} | ام3: ${row["ام3"]} | المجموع: ${row["المجموع"]} | المعدل العام: ${row["المعدل العام"]}`;
+                doc.text(rowData, 20, y);
+                y += 10;
+            });
+
+            doc.save('نتائج_الطلاب.pdf');
+        }
     </script>
 </body>
 </html>
