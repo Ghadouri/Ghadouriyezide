@@ -32,4 +32,66 @@
         th {
             background-color: #f0f0f0;
         }
-        h
+        h1 {
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <h1>إعدادية هامد</h1>
+    <label for="class">اختر الصف:</label>
+    <select id="class">
+        <option value="1AS">1AS</option>
+        <option value="2AS">2AS</option>
+        <option value="3AS">3AS</option>
+        <option value="4AS">4AS</option>
+    </select>
+
+    <button onclick="loadResults()">عرض النتائج</button>
+
+    <div id="results"></div>
+
+    <script>
+        async function loadResults() {
+            const selectedClass = document.getElementById('class').value;
+
+            // Excel file URL hosted on GitHub
+            const excelUrl = 'https://raw.githubusercontent.com/Ghadouri/your-repo/main/students.xlsx';
+
+            // Fetch the Excel file
+            const response = await fetch(excelUrl);
+            const arrayBuffer = await response.arrayBuffer();
+
+            // Parse the Excel file
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const data = XLSX.utils.sheet_to_json(sheet);
+
+            // Filter data for the selected class
+            const filteredData = data.filter(row => row['الصف'] === selectedClass);
+
+            // Display results
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = generateTable(filteredData);
+        }
+
+        function generateTable(data) {
+            if (data.length === 0) return '<p>لا توجد نتائج</p>';
+
+            let table = '<table><tr>';
+            Object.keys(data[0]).forEach(key => table += `<th>${key}</th>`);
+            table += '</tr>';
+
+            data.forEach(row => {
+                table += '<tr>';
+                Object.values(row).forEach(value => table += `<td>${value}</td>`);
+                table += '</tr>';
+            });
+
+            table += '</table>';
+            return table;
+        }
+    </script>
+</body>
+</html>
