@@ -1,184 +1,106 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدخال النتائج</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 1px solid black;
-        }
-        th, td {
-            text-align: center;
-            padding: 8px;
-        }
-        .form-group {
-            margin-bottom: 10px;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px 15px;
-        }
-    </style>
+	<meta charset="utf-8">
+	<title>jsPDF - Create PDFs with HTML5 JavaScript Library</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<!-- Bootstrap -->
+	<link href="./examples/css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- Editor CSS -->
+	<link href="./examples/css/editor.css" rel="stylesheet">
 </head>
-<body>
-    <h1>إدخال النتائج</h1>
-    <div id="input-section">
-        <div class="form-group">
-            <label for="number">الرقم:</label>
-            <input type="text" id="number">
-        </div>
-        <div class="form-group">
-            <label for="name">الإسم:</label>
-            <input type="text" id="name">
-        </div>
-        <div class="form-group">
-            <label for="g1">خ1:</label>
-            <input type="number" id="g1">
-        </div>
-        <div class="form-group">
-            <label for="g2">خ2:</label>
-            <input type="number" id="g2">
-        </div>
-        <div class="form-group">
-            <label for="g3">خ3:</label>
-            <input type="number" id="g3">
-        </div>
-        <div class="form-group">
-            <label for="m1">أم1:</label>
-            <input type="number" id="m1">
-        </div>
-        <div class="form-group">
-            <label for="m2">أم2:</label>
-            <input type="number" id="m2">
-        </div>
-        <div class="form-group">
-            <label for="m3">أم3:</label>
-            <input type="number" id="m3">
-        </div>
-        <div class="form-group">
-            <label for="average">المعدل العام:</label>
-            <input type="number" id="average" readonly>
-        </div>
-        <div class="form-group">
-            <label for="total">المجموع:</label>
-            <input type="number" id="total" readonly>
-        </div>
-        <button onclick="addResult()">إضافة النتيجة</button>
-    </div>
 
-    <table id="results-table">
-        <thead>
-            <tr>
-                <th>الرقم</th>
-                <th>الإسم</th>
-                <th>خ1</th>
-                <th>خ2</th>
-                <th>خ3</th>
-                <th>أم1</th>
-                <th>أم2</th>
-                <th>أم3</th>
-                <th>المعدل العام</th>
-                <th>المجموع</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+	<body>
+		<style>#forkongithub a{background:#000;color:#fff;text-decoration:none;font-family:arial, sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:1rem;line-height:2rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#333;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:"";width:100%;display:block;position:absolute;top:1px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:absolute;display:block;top:0;right:0;width:160px;overflow:hidden;height:200px;}#forkongithub a{width:160px;position:absolute;top:15px;right:-40px;transform:rotate(45deg);-webkit-transform:rotate(45deg);box-shadow:4px 4px 10px rgba(0,0,0,0.8);}}</style><span id="forkongithub"><a href="https://github.com/MrRio/jsPDF">Star me on GitHub</a></span>
+		<div class="container">
 
-    <button onclick="downloadPDF()">تحميل كملف PDF</button>
+			<div class="masthead" style="margin-top: 20px">
+				<div class="pull-right" style="text-align: right;">
+							<span class="tweet-buttons">
+								<a href="https://twitter.com/share" class="twitter-share-button" data-via="MrRio" data-size="large">Tweet</a>
+								<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+								<a href="https://twitter.com/MrRio" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @MrRio</a>
+														<a class="btn btn-primary btn-sm" style="vertical-align:top;" href="https://github.com/MrRio/jsPDF">Download Now</a>
+							<br/><span class="muted" id="dversion"></span>
+							</span>
+					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 
-    <script>
-        function calculateResults() {
-            const g1 = parseFloat(document.getElementById('g1').value) || 0;
-            const g2 = parseFloat(document.getElementById('g2').value) || 0;
-            const g3 = parseFloat(document.getElementById('g3').value) || 0;
-            const m1 = parseFloat(document.getElementById('m1').value) || 0;
-            const m2 = parseFloat(document.getElementById('m2').value) || 0;
-            const m3 = parseFloat(document.getElementById('m3').value) || 0;
+				</div>
+				<img src="https://parall.ax/parallax-2016/img/svg/jspdf-logo.svg" alt="jsPDF logo" height="60px">
+				<h4>HTML5 JavaScript PDF generation library from <a href="https://twitter.com/MrRio">@MrRio</a> at <a href="http://parall.ax">Parallax</a></h4>
+			</div>
 
-            const total = g1 * 1 + g2 * 1 + g3 * 1 + m1 * 1 + m2 * 2 + m3 * 3;
-            const average = total / 9; // مجموع الأوزان
+			<div class="row-fluid">
+				<div class="span6" style="float: right; height: 650px;width: 50%;" >
+					<div id="preview-pane" style="height: 650px;position:relative; z-index:999"></div>
+				</div>
+				<div class="span5 no-gutter" style="width: 49%;float:left">
 
-            document.getElementById('average').value = average.toFixed(2);
-            document.getElementById('total').value = total.toFixed(2);
-        }
+					<h2>Have a play.</h2>
 
-        function addResult() {
-            calculateResults();
+					<p>A HTML5 client-side solution for generating PDFs. Perfect for event tickets, reports, certificates, you name it! </p>
 
-            const number = document.getElementById('number').value;
-            const name = document.getElementById('name').value;
-            const g1 = document.getElementById('g1').value;
-            const g2 = document.getElementById('g2').value;
-            const g3 = document.getElementById('g3').value;
-            const m1 = document.getElementById('m1').value;
-            const m2 = document.getElementById('m2').value;
-            const m3 = document.getElementById('m3').value;
-            const average = document.getElementById('average').value;
-            const total = document.getElementById('total').value;
+					<p><b>No servers were used in the making of this demo.</b></p>
 
-            if (number && name) {
-                const table = document.getElementById('results-table').querySelector('tbody');
-                const row = table.insertRow();
-                row.insertCell(0).textContent = number;
-                row.insertCell(1).textContent = name;
-                row.insertCell(2).textContent = g1;
-                row.insertCell(3).textContent = g2;
-                row.insertCell(4).textContent = g3;
-                row.insertCell(5).textContent = m1;
-                row.insertCell(6).textContent = m2;
-                row.insertCell(7).textContent = m3;
-                row.insertCell(8).textContent = average;
-                row.insertCell(9).textContent = total;
+					<div class="template-picker">
+						<label for="template">Choose example</label>
+						<select id="template" name="template">
+							<option>Hold your horses...</option>
+						</select>
+					</div>
+				</div>
 
-                document.getElementById('number').value = '';
-                document.getElementById('name').value = '';
-                document.getElementById('g1').value = '';
-                document.getElementById('g2').value = '';
-                document.getElementById('g3').value = '';
-                document.getElementById('m1').value = '';
-                document.getElementById('m2').value = '';
-                document.getElementById('m3').value = '';
-                document.getElementById('average').value = '';
-                document.getElementById('total').value = '';
-            } else {
-                alert('يرجى تعبئة الحقول الأساسية!');
-            }
-        }
+				<div id="editor" class="bypass" style="width: 49%;"></div>
 
-        async function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+				<div class="controls" style="width: 49%;">
+					<div class="pull-right">
+						<!--<a href="#" class="btn btn-primary">Download Your Code</a>-->
+						<a href="#" class="btn btn-primary download-pdf">Download PDF</a>
+					</div>
 
-            doc.text('نتائج الطلاب', 10, 10);
+					<label class="checkbox-inline">
+						<input type="checkbox" id="auto-refresh" checked="checked"> Auto refresh on changes?
+					</label>
+					<a href="#" class="run-code hide btn btn-success">Run Code</a>
 
-            const table = document.getElementById('results-table');
-            const rows = table.querySelectorAll('tr');
+					<div class="alert hide">
+						Auto refresh disabled for this
+					</div>
 
-            let y = 20;
-            rows.forEach((row, index) => {
-                const cells = row.querySelectorAll('th, td');
-                let text = '';
-                cells.forEach(cell => {
-                    text += cell.textContent + '   ';
-                });
-                doc.text(text, 10, y);
-                y += 10;
-            });
+				</div>
 
-            doc.save('نتائج الطلاب.pdf');
-        }
-    </script>
-</body>
+			</div>
+			<div class="clerfix"></div>
+
+		</div> <!-- /container -->
+
+		<footer>&copy; 2017-2021 James Hall, 2021 yWorks GmbH - <a href="https://parall.ax/pages/privacy-policy">Privacy Policy</a></footer>
+
+		<!-- Scripts down here -->
+		<script   src="./examples/js/jquery/jquery-1.7.1.min.js"></script>
+
+		<script type="text/javascript" src="dist/polyfills.umd.js"></script>
+		<script type="text/javascript" src="dist/jspdf.umd.js"></script>
+
+		<script type="text/javascript">
+			var jsPDF = window.jspdf.jsPDF;
+			$(document).ready(function() {
+				if(jsPDF && jsPDF.version) {
+					$('#dversion').text('Version ' + jsPDF.version);
+				}
+			});
+		</script>
+
+		<!-- Code editor -->
+
+		<script src="./examples/js/ace.js" type="text/javascript" charset="utf-8"></script>
+
+		<!-- Scripts in development mode -->
+		<script type="text/javascript" src="./examples/js/pdfobject.min.js"></script>
+		<script type="text/javascript" src="./examples/js/editor.js"></script>
+	</body>
 </html>
