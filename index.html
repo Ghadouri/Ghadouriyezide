@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إعدادية هامد</title>
+    <title>إدخال نتائج التلميذ</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body {
@@ -12,7 +12,7 @@
             direction: rtl;
             background-color: #f9f9f9;
         }
-        select, button {
+        select, input, button {
             margin: 10px;
             padding: 10px;
             font-size: 1rem;
@@ -38,44 +38,57 @@
     </style>
 </head>
 <body>
-    <h1>إعدادية هامد</h1>
-    <label for="class">اختر الصف:</label>
-    <select id="class">
-        <option value="1AS">1AS</option>
-        <option value="2AS">2AS</option>
-        <option value="3AS">3AS</option>
-        <option value="4AS">4AS</option>
+    <h1>إدخال نتائج التلميذ</h1>
+
+    <label for="studentName">اسم التلميذ:</label>
+    <input type="text" id="studentName" placeholder="أدخل اسم التلميذ">
+    
+    <label for="subject">المادة:</label>
+    <select id="subject">
+        <option value="العربية">العربية</option>
+        <option value="الرياضيات">الرياضيات</option>
+        <option value="الفيزياء">الفيزياء</option>
+        <option value="العلوم الطبيعية">العلوم الطبيعية</option>
     </select>
 
-    <button onclick="loadResults()">عرض النتائج</button>
+    <label for="examType">نوع الاختبار:</label>
+    <select id="examType">
+        <option value="خ1">خ1</option>
+        <option value="خ2">خ2</option>
+        <option value="خ3">خ3</option>
+        <option value="ام1">ام1</option>
+        <option value="ام2">ام2</option>
+        <option value="ام3">ام3</option>
+    </select>
+
+    <label for="grade">الدرجة:</label>
+    <input type="number" id="grade" placeholder="أدخل الدرجة" min="0" max="20">
+
+    <button onclick="submitResult()">إدخال النتيجة</button>
+
+    <h2>عرض النتائج</h2>
+    <button onclick="loadResults()">تحميل النتائج</button>
 
     <div id="results"></div>
 
     <script>
+        // تحميل بيانات Excel من GitHub
+        const excelUrl = 'https://raw.githubusercontent.com/Ghadouriyezide/Ghadouriyezide/main/1AS_العربية.xlsx';
+
+        // تحميل النتائج من الملف
         async function loadResults() {
-            const selectedClass = document.getElementById('class').value;
-
-            // Excel file URL hosted on GitHub
-            const excelUrl = 'https://raw.githubusercontent.com/Ghadouri/your-repo/main/students.xlsx';
-
-            // Fetch the Excel file
             const response = await fetch(excelUrl);
             const arrayBuffer = await response.arrayBuffer();
-
-            // Parse the Excel file
             const workbook = XLSX.read(arrayBuffer, { type: 'array' });
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
             const data = XLSX.utils.sheet_to_json(sheet);
 
-            // Filter data for the selected class
-            const filteredData = data.filter(row => row['الصف'] === selectedClass);
-
-            // Display results
             const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = generateTable(filteredData);
+            resultsDiv.innerHTML = generateTable(data);
         }
 
+        // إنشاء الجدول لعرض النتائج
         function generateTable(data) {
             if (data.length === 0) return '<p>لا توجد نتائج</p>';
 
@@ -91,6 +104,21 @@
 
             table += '</table>';
             return table;
+        }
+
+        // إدخال النتيجة
+        function submitResult() {
+            const studentName = document.getElementById('studentName').value;
+            const subject = document.getElementById('subject').value;
+            const examType = document.getElementById('examType').value;
+            const grade = document.getElementById('grade').value;
+
+            if (studentName && subject && examType && grade) {
+                alert(`تم إضافة النتيجة: ${studentName} | ${subject} | ${examType} | ${grade}`);
+                // يمكن حفظ النتيجة في ملف Excel هنا عبر الخادم، ولكن لا يمكن حفظها مباشرة في GitHub عبر JavaScript
+            } else {
+                alert('الرجاء ملء جميع الحقول');
+            }
         }
     </script>
 </body>
