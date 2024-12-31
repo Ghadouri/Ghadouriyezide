@@ -3,44 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>College Hamoud</title>
+    <title>إعدادية هامد</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             direction: rtl;
+            background-color: #f9f9f9;
         }
         select, button {
             margin: 10px;
             padding: 10px;
+            font-size: 1rem;
         }
         table {
             margin: 20px auto;
             border-collapse: collapse;
+            width: 90%;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
         th, td {
-            border: 1px solid black;
+            border: 1px solid #ccc;
             padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #007BFF;
         }
     </style>
 </head>
 <body>
-    <h1>كلية حمود</h1>
+    <h1>إعدادية هامد</h1>
     <label for="class">اختر الصف:</label>
     <select id="class">
         <option value="1AS">1AS</option>
         <option value="2AS">2AS</option>
         <option value="3AS">3AS</option>
         <option value="4AS">4AS</option>
-    </select>
-
-    <label for="subject">اختر المادة:</label>
-    <select id="subject">
-        <option value="رياضيات">رياضيات</option>
-        <option value="فيزياء">فيزياء</option>
-        <option value="كيمياء">كيمياء</option>
-        <option value="لغة عربية">لغة عربية</option>
     </select>
 
     <button onclick="loadResults()">عرض النتائج</button>
@@ -50,10 +54,9 @@
     <script>
         async function loadResults() {
             const selectedClass = document.getElementById('class').value;
-            const selectedSubject = document.getElementById('subject').value;
 
             // Excel file URL hosted on GitHub
-            const excelUrl = 'https://raw.githubusercontent.com/Ghadouri/your-repo/main/results.xlsx';
+            const excelUrl = 'https://raw.githubusercontent.com/Ghadouri/your-repo/main/students.xlsx';
 
             // Fetch the Excel file
             const response = await fetch(excelUrl);
@@ -65,8 +68,8 @@
             const sheet = workbook.Sheets[sheetName];
             const data = XLSX.utils.sheet_to_json(sheet);
 
-            // Filter data
-            const filteredData = data.filter(row => row.Class === selectedClass && row.Subject === selectedSubject);
+            // Filter data for the selected class
+            const filteredData = data.filter(row => row['الصف'] === selectedClass);
 
             // Display results
             const resultsDiv = document.getElementById('results');
