@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إعدادية هامد</title>
+    <title>تعديل وتحميل نتائج الطلاب</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -39,7 +39,7 @@
     </style>
 </head>
 <body>
-    <h1>إعدادية هامد</h1>
+    <h1>تعديل وتحميل نتائج الطلاب</h1>
 
     <!-- اختيار السنة الدراسية -->
     <label for="class">اختر الصف:</label>
@@ -115,12 +115,24 @@
             if (data.length === 0) return '<p>لا توجد نتائج</p>';
 
             let table = '<table><tr>';
-            Object.keys(data[0]).forEach(key => table += `<th>${key}</th>`);
+            // عرض الأعمدة الخاصة بـ خ1، خ2، خ3، ام1، ام2، ام3، المجموع والمعدل العام
+            table += '<th>الاسم</th><th>خ1</th><th>خ2</th><th>خ3</th><th>ام1</th><th>ام2</th><th>ام3</th><th>المجموع</th><th>المعدل العام</th>';
             table += '</tr>';
 
             data.forEach(row => {
+                const total = row["خ1"] + row["خ2"] + row["خ3"] + row["ام1"] + row["ام2"] + row["ام3"];
+                const average = total / 6;  // حساب المعدل العام
+
                 table += '<tr>';
-                Object.values(row).forEach(value => table += `<td>${value}</td>`);
+                table += `<td>${row["الاسم"]}</td>`;
+                table += `<td>${row["خ1"]}</td>`;
+                table += `<td>${row["خ2"]}</td>`;
+                table += `<td>${row["خ3"]}</td>`;
+                table += `<td>${row["ام1"]}</td>`;
+                table += `<td>${row["ام2"]}</td>`;
+                table += `<td>${row["ام3"]}</td>`;
+                table += `<td>${total}</td>`;
+                table += `<td>${average.toFixed(2)}</td>`;
                 table += '</tr>';
             });
 
@@ -141,8 +153,13 @@
             data.push({
                 "الاسم": studentName,
                 "المادة": selectedSubject,
-                "الدرجة": score,
-                "الصف": selectedClass
+                "خ1": score, // إضافة الدرجة لـ خ1 أو خ2 أو خ3 حسب الاختيار
+                "ام1": 0,  // قيم مبدئية (يمكنك تعديلها حسب الحاجة)
+                "ام2": 0,
+                "ام3": 0,
+                "الصف": selectedClass,
+                "المجموع": 0,
+                "المعدل العام": 0
             });
 
             // عرض الجدول المحدث
