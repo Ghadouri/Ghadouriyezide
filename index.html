@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عرض نتائج 1AS - العربية</title>
+    <title>تعديل وتحميل نتائج الطلاب</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,7 +13,7 @@
             direction: rtl;
             background-color: #f9f9f9;
         }
-        select, button {
+        select, button, input {
             margin: 10px;
             padding: 10px;
             font-size: 1rem;
@@ -38,47 +39,136 @@
     </style>
 </head>
 <body>
-    <h1>نتائج الطلاب 1AS - مادة العربية</h1>
-    
-    <button onclick="loadExcel()">تحميل النتائج</button>
-    
+    <h1>تعديل وتحميل نتائج الطلاب</h1>
+
+    <!-- اختيار السنة الدراسية -->
+    <label for="class">اختر الصف:</label>
+    <select id="class">
+        <option value="1AS">السنة الأولى</option>
+        <option value="2AS">السنة الثانية</option>
+        <option value="3AS">السنة الثالثة</option>
+        <option value="4AS">السنة الرابعة</option>
+    </select>
+
+    <!-- اختيار المادة الدراسية -->
+    <label for="subject">اختر المادة:</label>
+    <select id="subject">
+        <option value="العربية">العربية</option>
+        <option value="الرياضيات">الرياضيات</option>
+        <option value="الفرنسية">الفرنسية</option>
+        <option value="التربية الإسلامية">التربية الإسلامية</option>
+        <option value="التاريخ والجغرافيا">التاريخ والجغرافيا</option>
+        <option value="الفيزياء والكيمياء">الفيزياء والكيمياء</option>
+        <option value="العلوم الطبيعية">العلوم الطبيعية</option>
+        <option value="التربية المدنية">التربية المدنية</option>
+    </select>
+
+    <button onclick="loadResults()">عرض النتائج</button>
+
     <div id="results"></div>
-    
+
+    <button id="downloadPdfBtn" style="display:none;" onclick="downloadPdf()">تحميل PDF</button>
+
+    <h2>إدخال نتيجة جديدة</h2>
+    <form id="resultForm">
+        <label for="studentNumber">رقم الطالب:</label>
+        <input type="text" id="studentNumber" placeholder="أدخل رقم الطالب" required>
+        <label for="studentScore">النتيجة:</label>
+        <input type="number" id="studentScore" placeholder="أدخل النتيجة" required>
+        <button type="submit">إدخال النتيجة</button>
+    </form>
+
     <script>
-        async function loadExcel() {
-            // رابط ملف Excel الذي قمت برفعه
-            const excelUrl = 'https://raw.githubusercontent.com/Ghadouriyezide/Ghadouriyezide/main/1AS_العربية.xlsx';
-            
+        let data = [];
+
+        // تحميل نتائج الطلاب من ملف Excel حسب السنة الدراسية والمادة
+        async function loadResults() {
+            const selectedClass = document.getElementById('class').value;
+            const selectedSubject = document.getElementById('subject').value;
+
+            // رابط ملف Excel بناءً على الصف والمادة المحددة
+            const excelUrl = `https://raw.githubusercontent.com/Ghadouri/your-repo/main/${selectedClass}_${selectedSubject}.xlsx`;
+
             // جلب ملف الإكسل
             const response = await fetch(excelUrl);
             const arrayBuffer = await response.arrayBuffer();
-            
+
             // قراءة ملف الإكسل
             const workbook = XLSX.read(arrayBuffer, { type: 'array' });
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
-            const data = XLSX.utils.sheet_to_json(sheet);
-            
+            data = XLSX.utils.sheet_to_json(sheet);
+
+            // تصفية البيانات حسب المادة والصف
+            const filteredData = data.filter(row => row['المادة'] === selectedSubject && row['الصف'] === selectedClass);
+
             // عرض النتائج
             const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = generateTable(data);
+            resultsDiv.innerHTML = generateTable(filteredData);
+
+            // إظهار زر تحميل PDF
+            document.getElementById('downloadPdfBtn').style.display = 'inline';
         }
 
+        // توليد الجدول لعرض البيانات
         function generateTable(data) {
             if (data.length === 0) return '<p>لا توجد نتائج</p>';
 
             let table = '<table><tr>';
-            Object.keys(data[0]).forEach(key => table += `<th>${key}</th>`);
+            // عرض الأعمدة الخاصة بـ الرقم والنتيجة
+            table += '<th>رقم الطالب</th><th>النتيجة</th>';
             table += '</tr>';
 
             data.forEach(row => {
                 table += '<tr>';
-                Object.values(row).forEach(value => table += `<td>${value}</td>`);
+                table += `<td>${row["الرقم"]}</td>`;
+                table += `<td>${row["النتيجة"]}</td>`;
                 table += '</tr>';
             });
 
             table += '</table>';
             return table;
+        }
+
+        // إضافة النتيجة الجديدة عند تقديم النموذج
+        document.getElementById('resultForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const studentNumber = document.getElementById('studentNumber').value;
+            const studentScore = document.getElementById('studentScore').value;
+            const selectedClass = document.getElementById('class').value;
+            const selectedSubject = document.getElementById('subject').value;
+
+            // إضافة النتيجة الجديدة إلى البيانات
+            data.push({
+                "الرقم": studentNumber,
+                "النتيجة": studentScore,
+                "المادة": selectedSubject,
+                "الصف": selectedClass
+            });
+
+            // عرض الجدول المحدث
+            document.getElementById('results').innerHTML = generateTable(data);
+
+            // مسح الحقول بعد الإدخال
+            document.getElementById('resultForm').reset();
+        });
+
+        // تنزيل PDF يحتوي على النتائج
+        function downloadPdf() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text("نتائج الطلاب في مادة " + document.getElementById('subject').value, 20, 20);
+
+            let y = 30;
+            data.forEach(row => {
+                const rowData = `رقم الطالب: ${row["الرقم"]} | النتيجة: ${row["النتيجة"]}`;
+                doc.text(rowData, 20, y);
+                y += 10;
+            });
+
+            doc.save('نتائج_الطلاب.pdf');
         }
     </script>
 </body>
