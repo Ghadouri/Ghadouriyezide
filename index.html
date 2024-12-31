@@ -1,127 +1,71 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدخال النتائج</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            direction: rtl;
-            background-color: #f9f9f9;
-        }
-        select, button, input {
-            margin: 10px;
-            padding: 10px;
-            font-size: 1rem;
-        }
-        table {
-            margin: 20px auto;
-            border-collapse: collapse;
-            width: 90%;
-            background-color: #fff;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #f0f0f0;
-        }
-        h1 {
-            color: #007BFF;
-        }
-    </style>
+    <title>إعدادية هامد - نتائج الطلاب</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>إدخال نتائج التلاميذ</h1>
-
-    <!-- اختر المادة -->
-    <label for="subject">اختر المادة:</label>
-    <select id="subject">
-        <option value="1AS_العربية">العربية</option>
-        <option value="2AS_العربية">الرياضيات</option>
-        <option value="3AS_العربية">الفرنسية</option>
-        <!-- أضف باقي المواد هنا -->
-    </select>
-
-    <!-- إدخال النتيجة -->
-    <label for="studentId">رقم الطالب:</label>
-    <input type="number" id="studentId" placeholder="رقم الطالب">
-
-    <label for="examResult">نتيجة الاختبار:</label>
-    <input type="number" id="examResult" placeholder="نتيجة الاختبار">
-
-    <button onclick="addResult()">إضافة النتيجة</button>
-
-    <div id="results"></div>
-
-    <script>
-        let studentData = [];
-
-        async function loadResults() {
-            const selectedSubject = document.getElementById('subject').value;
-            const url = `https://raw.githubusercontent.com/Ghadouriyezide/${selectedSubject}.json`;
-
-            const response = await fetch(url);
-            const data = await response.json();
-            studentData = data;
-            displayResults();
-        }
-
-        function displayResults() {
-            const resultsDiv = document.getElementById('results');
-            let table = '<table><tr><th>رقم الطالب</th><th>النتيجة</th></tr>';
-
-            studentData.forEach(student => {
-                table += `<tr><td>${student.الرقم}</td><td>${student.نتيجة الاختبار}</td></tr>`;
-            });
-
-            table += '</table>';
-            resultsDiv.innerHTML = table;
-        }
-
-        function addResult() {
-            const studentId = document.getElementById('studentId').value;
-            const examResult = document.getElementById('examResult').value;
-
-            // إضافة النتيجة
-            const studentIndex = studentData.findIndex(student => student.الرقم == studentId);
-            if (studentIndex !== -1) {
-                studentData[studentIndex].نتيجة الاختبار = examResult;
-            } else {
-                studentData.push({
-                    "الرقم": studentId,
-                    "نتيجة الاختبار": examResult
-                });
-            }
-
-            // حفظ البيانات الجديدة
-            saveDataToJSON();
-        }
-
-        async function saveDataToJSON() {
-            const selectedSubject = document.getElementById('subject').value;
-            const url = `https://raw.githubusercontent.com/Ghadouriyezide/${selectedSubject}.json`;
-
-            // نشر التحديثات إلى GitHub
-            await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `token <YOUR_GITHUB_TOKEN>` // ستحتاج إلى إنشاء GitHub token
-                },
-                body: JSON.stringify(studentData)
-            });
-
-            alert('تم حفظ النتيجة');
-        }
-
-        loadResults();
-    </script>
+    <header>
+        <h1>إعدادية هامد</h1>
+        <h2>السنة الدراسية: <span id="schoolYear">2024</span></h2>
+    </header>
+    <main>
+        <form id="studentForm">
+            <div>
+                <label for="studentId">رقم التلميذ:</label>
+                <input type="text" id="studentId" required>
+            </div>
+            <div>
+                <label for="studentName">اسم التلميذ:</label>
+                <input type="text" id="studentName" required>
+            </div>
+            <div>
+                <label for="test1">الاختبار الأول:</label>
+                <input type="number" id="test1" required>
+            </div>
+            <div>
+                <label for="test2">الاختبار الثاني:</label>
+                <input type="number" id="test2" required>
+            </div>
+            <div>
+                <label for="test3">الاختبار الثالث:</label>
+                <input type="number" id="test3" required>
+            </div>
+            <div>
+                <label for="exam1">الإمتحان الأول:</label>
+                <input type="number" id="exam1" required>
+            </div>
+            <div>
+                <label for="exam2">الإمتحان الثاني:</label>
+                <input type="number" id="exam2" required>
+            </div>
+            <div>
+                <label for="exam3">الإمتحان الثالث:</label>
+                <input type="number" id="exam3" required>
+            </div>
+            <button type="button" id="addStudent">إضافة التلميذ</button>
+        </form>
+        <table id="studentsTable">
+            <thead>
+                <tr>
+                    <th>رقم التلميذ</th>
+                    <th>اسم التلميذ</th>
+                    <th>الاختبار الأول</th>
+                    <th>الاختبار الثاني</th>
+                    <th>الاختبار الثالث</th>
+                    <th>الإمتحان الأول</th>
+                    <th>الإمتحان الثاني</th>
+                    <th>الإمتحان الثالث</th>
+                    <th>المجموع</th>
+                    <th>المعدل</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button id="downloadPdf">تنزيل كملف PDF</button>
+    </main>
+    <script src="script.js"></script>
 </body>
 </html>
