@@ -12,7 +12,7 @@
             direction: rtl;
             background-color: #f9f9f9;
         }
-        select, button {
+        select, button, input {
             margin: 10px;
             padding: 10px;
             font-size: 1rem;
@@ -39,23 +39,53 @@
 </head>
 <body>
     <h1>إعدادية هامد</h1>
+
+    <!-- اختيار السنة الدراسية -->
     <label for="class">اختر الصف:</label>
     <select id="class">
         <option value="1AS">السنة الأولى</option>
         <option value="2AS">السنة الثانية</option>
         <option value="3AS">السنة الثالثة</option>
+        <option value="4AS">السنة الرابعة</option>
+    </select>
+
+    <!-- اختيار المادة الدراسية -->
+    <label for="subject">اختر المادة:</label>
+    <select id="subject">
+        <option value="العربية">العربية</option>
+        <option value="الرياضيات">الرياضيات</option>
+        <option value="الفرنسية">الفرنسية</option>
+        <option value="التربية الإسلامية">التربية الإسلامية</option>
+        <option value="التاريخ والجغرافيا">التاريخ والجغرافيا</option>
+        <option value="الفيزياء والكيمياء">الفيزياء والكيمياء</option>
+        <option value="العلوم الطبيعية">العلوم الطبيعية</option>
+        <option value="التربية المدنية">التربية المدنية</option>
     </select>
 
     <button onclick="loadResults()">عرض النتائج</button>
 
     <div id="results"></div>
 
+    <!-- إدخال النتيجة -->
+    <h2>إدخال نتيجة جديدة</h2>
+    <form id="resultForm">
+        <label for="studentName">اسم الطالب:</label>
+        <input type="text" id="studentName" placeholder="أدخل اسم الطالب" required>
+        <label for="score">الدرجة:</label>
+        <input type="number" id="score" placeholder="أدخل الدرجة" required>
+        <button type="submit">إدخال النتيجة</button>
+    </form>
+
     <script>
+        let data = [];
+
+        // تحميل نتائج الطلاب من ملف Excel حسب السنة الدراسية والمادة
         async function loadResults() {
             const selectedClass = document.getElementById('class').value;
+            const selectedSubject = document.getElementById('subject').value;
 
-            // رابط ملف الإكسل
-            const excelUrl = 'https://raw.githubusercontent.com/Ghadouri/your-repo/main/students.xlsx';
+            // رابط ملف Excel بناءً على الصف والمادة المحددة
+            const excelUrl = `https://raw.githubusercontent.com/Ghadouri/your-repo/main/${selectedClass}_${selectedSubject}.xlsx`;
 
             // جلب ملف الإكسل
             const response = await fetch(excelUrl);
@@ -65,16 +95,17 @@
             const workbook = XLSX.read(arrayBuffer, { type: 'array' });
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
-            const data = XLSX.utils.sheet_to_json(sheet);
+            data = XLSX.utils.sheet_to_json(sheet);
 
-            // تصفية البيانات بناءً على الصف
-            const filteredData = data.filter(row => row['الصف'] === selectedClass);
+            // تصفية البيانات حسب المادة والصف
+            const filteredData = data.filter(row => row['المادة'] === selectedSubject && row['الصف'] === selectedClass);
 
             // عرض النتائج
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = generateTable(filteredData);
         }
 
+        // توليد الجدول لعرض البيانات
         function generateTable(data) {
             if (data.length === 0) return '<p>لا توجد نتائج</p>';
 
@@ -91,6 +122,30 @@
             table += '</table>';
             return table;
         }
+
+        // إضافة النتيجة الجديدة عند تقديم النموذج
+        document.getElementById('resultForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const studentName = document.getElementById('studentName').value;
+            const score = document.getElementById('score').value;
+            const selectedClass = document.getElementById('class').value;
+            const selectedSubject = document.getElementById('subject').value;
+
+            // إضافة النتيجة الجديدة إلى البيانات
+            data.push({
+                "الاسم": studentName,
+                "المادة": selectedSubject,
+                "الدرجة": score,
+                "الصف": selectedClass
+            });
+
+            // عرض الجدول المحدث
+            document.getElementById('results').innerHTML = generateTable(data);
+
+            // مسح الحقول بعد الإدخال
+            document.getElementById('resultForm').reset();
+        });
     </script>
 </body>
 </html>
