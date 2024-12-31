@@ -41,10 +41,9 @@
     <h1>إعدادية هامد</h1>
     <label for="class">اختر الصف:</label>
     <select id="class">
-        <option value="1AS">1AS</option>
-        <option value="2AS">2AS</option>
-        <option value="3AS">3AS</option>
-        <option value="4AS">4AS</option>
+        <option value="1AS">السنة الأولى</option>
+        <option value="2AS">السنة الثانية</option>
+        <option value="3AS">السنة الثالثة</option>
     </select>
 
     <button onclick="loadResults()">عرض النتائج</button>
@@ -55,23 +54,23 @@
         async function loadResults() {
             const selectedClass = document.getElementById('class').value;
 
-            // Excel file URL hosted on GitHub
+            // رابط ملف الإكسل
             const excelUrl = 'https://raw.githubusercontent.com/Ghadouri/your-repo/main/students.xlsx';
 
-            // Fetch the Excel file
+            // جلب ملف الإكسل
             const response = await fetch(excelUrl);
             const arrayBuffer = await response.arrayBuffer();
 
-            // Parse the Excel file
+            // قراءة ملف الإكسل
             const workbook = XLSX.read(arrayBuffer, { type: 'array' });
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
             const data = XLSX.utils.sheet_to_json(sheet);
 
-            // Filter data for the selected class
+            // تصفية البيانات بناءً على الصف
             const filteredData = data.filter(row => row['الصف'] === selectedClass);
 
-            // Display results
+            // عرض النتائج
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = generateTable(filteredData);
         }
