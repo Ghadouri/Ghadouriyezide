@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدخال نتائج الطلاب</title>
+    <title>إدخال نتائج الطلاب وتحويلها إلى PDF</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -77,6 +78,7 @@
     
     <button onclick="addResult()">إضافة النتيجة</button>
     <button onclick="saveToJSON()">حفظ البيانات</button>
+    <button onclick="downloadPDF()">تنزيل PDF</button>
 
     <h3>نتائج المادة المختارة:</h3>
     <div id="results"></div>
@@ -156,6 +158,51 @@
             link.href = URL.createObjectURL(blob);
             link.download = subject + '.json';
             link.click();
+        }
+
+        // تحميل البيانات وتحويلها إلى PDF
+        function downloadPDF() {
+            const subject = document.getElementById('subject').value;
+            const data = subjectData[subject];
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFont("Arial");
+
+            let yOffset = 10;
+            doc.text(`نتائج مادة: ${subject}`, 10, yOffset);
+            yOffset += 10;
+
+            // إضافة رؤوس الأعمدة
+            doc.text("الإسم", 10, yOffset);
+            doc.text("الرقم", 40, yOffset);
+            doc.text("خ1", 70, yOffset);
+            doc.text("خ2", 90, yOffset);
+            doc.text("خ3", 110, yOffset);
+            doc.text("ام1", 130, yOffset);
+            doc.text("ام2", 150, yOffset);
+            doc.text("ام3", 170, yOffset);
+            doc.text("المجموع", 190, yOffset);
+            doc.text("المعدل العام", 210, yOffset);
+
+            yOffset += 10;
+
+            // إضافة بيانات الطلاب
+            data.forEach(result => {
+                doc.text(result.الإسم, 10, yOffset);
+                doc.text(result.الرقم.toString(), 40, yOffset);
+                doc.text(result.خ1.toString(), 70, yOffset);
+                doc.text(result.خ2.toString(), 90, yOffset);
+                doc.text(result.خ3.toString(), 110, yOffset);
+                doc.text(result.ام1.toString(), 130, yOffset);
+                doc.text(result.ام2.toString(), 150, yOffset);
+                doc.text(result.ام3.toString(), 170, yOffset);
+                doc.text(result.المجموع.toString(), 190, yOffset);
+                doc.text(result.المعدل العام.toFixed(2).toString(), 210, yOffset);
+
+                yOffset += 10;
+            });
+
+            doc.save(`${subject}_نتائج.pdf`);
         }
     </script>
 </body>
