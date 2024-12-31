@@ -43,10 +43,10 @@
 
     <label for="subject">اختر المادة:</label>
     <select id="subject">
-        <option value="العربية">العربية</option>
-        <option value="الرياضيات">الرياضيات</option>
-        <option value="الفرنسية">الفرنسية</option>
-        <option value="التربية الإسلامية">التربية الإسلامية</option>
+        <option value="1AS_العربية">1AS_العربية</option>
+        <option value="2AS_العربية">2AS_العربية</option>
+        <option value="3AS_العربية">3AS_العربية</option>
+        <option value="4AS_العربية">4AS_العربية</option>
     </select>
 
     <br>
@@ -84,12 +84,25 @@
     <div id="results"></div>
 
     <script>
-        const subjectData = {
-            "العربية": [],
-            "الرياضيات": [],
-            "الفرنسية": [],
-            "التربية الإسلامية": []
+        let subjectData = {
+            "1AS_العربية": [],
+            "2AS_العربية": [],
+            "3AS_العربية": [],
+            "4AS_العربية": []
         };
+
+        // تحميل ملف Excel من GitHub وتحويله إلى JSON
+        async function loadExcelFile() {
+            const subject = document.getElementById('subject').value;
+            const fileUrl = `https://raw.githubusercontent.com/Ghadouri/Ghadouri/main/${subject}.xlsx`;
+            const response = await fetch(fileUrl);
+            const data = await response.arrayBuffer();
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+            subjectData[subject] = jsonData;
+            displayResults(subject);
+        }
 
         // إضافة نتيجة الطالب إلى المادة المختارة
         function addResult() {
@@ -156,7 +169,7 @@
             const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = subject + '.json';
+            link.download = `${subject}.json`;
             link.click();
         }
 
@@ -204,6 +217,9 @@
 
             doc.save(`${subject}_نتائج.pdf`);
         }
+
+        // تحميل الملف عند بدء الصفحة
+        loadExcelFile();
     </script>
 </body>
 </html>
