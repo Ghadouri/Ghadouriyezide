@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Hamoud</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            direction: rtl;
+        }
+        select, button {
+            margin: 10px;
+            padding: 10px;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>كلية حمود</h1>
+    <label for="class">اختر الصف:</label>
+    <select id="class">
+        <option value="1AS">1AS</option>
+        <option value="2AS">2AS</option>
+        <option value="3AS">3AS</option>
+        <option value="4AS">4AS</option>
+    </select>
+
+    <label for="subject">اختر المادة:</label>
+    <select id="subject">
+        <option value="رياضيات">رياضيات</option>
+        <option value="فيزياء">فيزياء</option>
+        <option value="كيمياء">كيمياء</option>
+        <option value="لغة عربية">لغة عربية</option>
+    </select>
+
+    <button onclick="loadResults()">عرض النتائج</button>
+
+    <div id="results"></div>
+
+    <script>
+        async function loadResults() {
+            const selectedClass = document.getElementById('class').value;
+            const selectedSubject = document.getElementById('subject').value;
+
+            // Excel file URL hosted on GitHub
+            const excelUrl = 'https://raw.githubusercontent.com/Ghadouri/your-repo/main/results.xlsx';
+
+            // Fetch the Excel file
+            const response = await fetch(excelUrl);
+            const arrayBuffer = await response.arrayBuffer();
+
+            // Parse the Excel file
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const data = XLSX.utils.sheet_to_json(sheet);
+
+            // Filter data
+            const filteredData = data.filter(row => row.Class === selectedClass && row.Subject === selectedSubject);
+
+            // Display results
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = generateTable(filteredData);
+        }
+
+        function generateTable(data) {
+            if (data.length === 0) return '<p>لا توجد نتائج</p>';
+
+            let table = '<table><tr>';
+            Object.keys(data[0]).forEach(key => table += `<th>${key}</th>`);
+            table += '</tr>';
+
+            data.forEach(row => {
+                table += '<tr>';
+                Object.values(row).forEach(value => table += `<td>${value}</td>`);
+                table += '</tr>';
+            });
+
+            table += '</table>';
+            return table;
+        }
+    </script>
+</body>
+</html>
