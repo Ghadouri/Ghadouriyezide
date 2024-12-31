@@ -1,124 +1,166 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدخال نتائج التلميذ</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <title>إدخال النتائج</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            direction: rtl;
-            background-color: #f9f9f9;
-        }
-        select, input, button {
-            margin: 10px;
-            padding: 10px;
-            font-size: 1rem;
+            margin: 20px;
         }
         table {
-            margin: 20px auto;
+            width: 100%;
             border-collapse: collapse;
-            width: 90%;
-            background-color: #fff;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
         }
         th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
             text-align: center;
+            padding: 8px;
         }
-        th {
-            background-color: #f0f0f0;
+        .form-group {
+            margin-bottom: 10px;
         }
-        h1 {
-            color: #007BFF;
+        button {
+            margin-top: 10px;
+            padding: 10px 15px;
         }
     </style>
 </head>
 <body>
-    <h1>إدخال نتائج التلميذ</h1>
+    <h1>إدخال النتائج</h1>
+    <div id="input-section">
+        <div class="form-group">
+            <label for="number">الرقم:</label>
+            <input type="text" id="number">
+        </div>
+        <div class="form-group">
+            <label for="name">الإسم:</label>
+            <input type="text" id="name">
+        </div>
+        <div class="form-group">
+            <label for="g1">خ1:</label>
+            <input type="text" id="g1">
+        </div>
+        <div class="form-group">
+            <label for="g2">خ2:</label>
+            <input type="text" id="g2">
+        </div>
+        <div class="form-group">
+            <label for="g3">خ3:</label>
+            <input type="text" id="g3">
+        </div>
+        <div class="form-group">
+            <label for="m1">أم1:</label>
+            <input type="text" id="m1">
+        </div>
+        <div class="form-group">
+            <label for="m2">أم2:</label>
+            <input type="text" id="m2">
+        </div>
+        <div class="form-group">
+            <label for="m3">أم3:</label>
+            <input type="text" id="m3">
+        </div>
+        <div class="form-group">
+            <label for="average">المعدل العام:</label>
+            <input type="text" id="average">
+        </div>
+        <div class="form-group">
+            <label for="total">المجموع:</label>
+            <input type="text" id="total">
+        </div>
+        <button onclick="addResult()">إضافة النتيجة</button>
+    </div>
 
-    <label for="studentName">اسم التلميذ:</label>
-    <input type="text" id="studentName" placeholder="أدخل اسم التلميذ">
-    
-    <label for="subject">المادة:</label>
-    <select id="subject">
-        <option value="العربية">العربية</option>
-        <option value="الرياضيات">الرياضيات</option>
-        <option value="الفيزياء">الفيزياء</option>
-        <option value="العلوم الطبيعية">العلوم الطبيعية</option>
-    </select>
+    <table id="results-table">
+        <thead>
+            <tr>
+                <th>الرقم</th>
+                <th>الإسم</th>
+                <th>خ1</th>
+                <th>خ2</th>
+                <th>خ3</th>
+                <th>أم1</th>
+                <th>أم2</th>
+                <th>أم3</th>
+                <th>المعدل العام</th>
+                <th>المجموع</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 
-    <label for="examType">نوع الاختبار:</label>
-    <select id="examType">
-        <option value="خ1">خ1</option>
-        <option value="خ2">خ2</option>
-        <option value="خ3">خ3</option>
-        <option value="ام1">ام1</option>
-        <option value="ام2">ام2</option>
-        <option value="ام3">ام3</option>
-    </select>
-
-    <label for="grade">الدرجة:</label>
-    <input type="number" id="grade" placeholder="أدخل الدرجة" min="0" max="20">
-
-    <button onclick="submitResult()">إدخال النتيجة</button>
-
-    <h2>عرض النتائج</h2>
-    <button onclick="loadResults()">تحميل النتائج</button>
-
-    <div id="results"></div>
+    <button onclick="downloadPDF()">تحميل كملف PDF</button>
 
     <script>
-        // تحميل بيانات Excel من GitHub
-        const excelUrl = 'https://raw.githubusercontent.com/Ghadouriyezide/Ghadouriyezide/main/1AS_العربية.xlsx';
+        function addResult() {
+            const number = document.getElementById('number').value;
+            const name = document.getElementById('name').value;
+            const g1 = document.getElementById('g1').value;
+            const g2 = document.getElementById('g2').value;
+            const g3 = document.getElementById('g3').value;
+            const m1 = document.getElementById('m1').value;
+            const m2 = document.getElementById('m2').value;
+            const m3 = document.getElementById('m3').value;
+            const average = document.getElementById('average').value;
+            const total = document.getElementById('total').value;
 
-        // تحميل النتائج من الملف
-        async function loadResults() {
-            const response = await fetch(excelUrl);
-            const arrayBuffer = await response.arrayBuffer();
-            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            const data = XLSX.utils.sheet_to_json(sheet);
+            if (number && name && g1 && g2 && g3 && m1 && m2 && m3 && average && total) {
+                const table = document.getElementById('results-table').querySelector('tbody');
+                const row = table.insertRow();
+                row.insertCell(0).textContent = number;
+                row.insertCell(1).textContent = name;
+                row.insertCell(2).textContent = g1;
+                row.insertCell(3).textContent = g2;
+                row.insertCell(4).textContent = g3;
+                row.insertCell(5).textContent = m1;
+                row.insertCell(6).textContent = m2;
+                row.insertCell(7).textContent = m3;
+                row.insertCell(8).textContent = average;
+                row.insertCell(9).textContent = total;
 
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = generateTable(data);
+                document.getElementById('number').value = '';
+                document.getElementById('name').value = '';
+                document.getElementById('g1').value = '';
+                document.getElementById('g2').value = '';
+                document.getElementById('g3').value = '';
+                document.getElementById('m1').value = '';
+                document.getElementById('m2').value = '';
+                document.getElementById('m3').value = '';
+                document.getElementById('average').value = '';
+                document.getElementById('total').value = '';
+            } else {
+                alert('يرجى تعبئة جميع الحقول!');
+            }
         }
 
-        // إنشاء الجدول لعرض النتائج
-        function generateTable(data) {
-            if (data.length === 0) return '<p>لا توجد نتائج</p>';
+        async function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.text('نتائج الطلاب', 10, 10);
+            
+            const table = document.getElementById('results-table');
+            const rows = table.querySelectorAll('tr');
 
-            let table = '<table><tr>';
-            Object.keys(data[0]).forEach(key => table += `<th>${key}</th>`);
-            table += '</tr>';
-
-            data.forEach(row => {
-                table += '<tr>';
-                Object.values(row).forEach(value => table += `<td>${value}</td>`);
-                table += '</tr>';
+            let y = 20;
+            rows.forEach((row, index) => {
+                const cells = row.querySelectorAll('th, td');
+                let text = '';
+                cells.forEach(cell => {
+                    text += cell.textContent + '   ';
+                });
+                doc.text(text, 10, y);
+                y += 10;
             });
 
-            table += '</table>';
-            return table;
-        }
-
-        // إدخال النتيجة
-        function submitResult() {
-            const studentName = document.getElementById('studentName').value;
-            const subject = document.getElementById('subject').value;
-            const examType = document.getElementById('examType').value;
-            const grade = document.getElementById('grade').value;
-
-            if (studentName && subject && examType && grade) {
-                alert(`تم إضافة النتيجة: ${studentName} | ${subject} | ${examType} | ${grade}`);
-                // يمكن حفظ النتيجة في ملف Excel هنا عبر الخادم، ولكن لا يمكن حفظها مباشرة في GitHub عبر JavaScript
-            } else {
-                alert('الرجاء ملء جميع الحقول');
-            }
+            doc.save('نتائج الطلاب.pdf');
         }
     </script>
 </body>
